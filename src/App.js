@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ConfigProvider, theme } from 'antd';
 import useTradingStore from './store/tradingStore';
 import { TradingChart } from './components/Chart';
@@ -13,6 +13,7 @@ import './App.css';
 
 function App() {
   const { updatePrice, addNewCandle, setIsDepositModalOpen } = useTradingStore();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Real-time price updates
   useEffect(() => {
@@ -59,7 +60,10 @@ function App() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
               <span className="text-white font-bold text-sm">G</span>
             </div>
-            <button className="text-gray-400 hover:text-white">
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               <MenuOutlined className="text-lg" />
             </button>
           </div>
@@ -97,7 +101,7 @@ function App() {
         {/* Main Content - Fixed Height, No Scroll */}
         <main className="flex-1 flex overflow-hidden">
           {/* Left Sidebar */}
-          <aside className="w-56 border-r border-[#1e2433] flex flex-col flex-shrink-0">
+          <aside className={`${sidebarOpen ? 'w-56' : 'w-0'} border-r border-[#1e2433] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden`}>
             {/* Symbol Selector */}
             <SymbolSelector />
             
