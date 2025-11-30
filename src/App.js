@@ -1,25 +1,138 @@
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
+import { ConfigProvider, theme } from 'antd';
+import useTradingStore from './store/tradingStore';
+import { TradingChart } from './components/Chart';
+import { SymbolSelector } from './components/Symbol';
+import { TradingPanel } from './components/TradingPanel';
+import { OrderBook } from './components/OrderBook';
+import { RecentTrades } from './components/Trades';
+import { WalletPanel } from './components/Wallet';
+import { DepositModal } from './components/Modals';
+import { MenuOutlined, UserOutlined } from '@ant-design/icons';
 import './App.css';
 
 function App() {
+  const { updatePrice, addNewCandle, setIsDepositModalOpen } = useTradingStore();
+
+  // Real-time price updates
+  useEffect(() => {
+    const priceInterval = setInterval(() => {
+      updatePrice();
+    }, 1000);
+
+    const candleInterval = setInterval(() => {
+      addNewCandle();
+    }, 60000);
+
+    return () => {
+      clearInterval(priceInterval);
+      clearInterval(candleInterval);
+    };
+  }, [updatePrice, addNewCandle]);
+
+  const navItems = [
+    { key: 'trade', label: 'TRADE' },
+    { key: 'wallet', label: 'WALLET' },
+    { key: 'settings', label: 'SETTINGS' },
+  ];
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ConfigProvider
+      theme={{
+        algorithm: theme.darkAlgorithm,
+        token: {
+          colorPrimary: '#2962ff',
+          colorBgContainer: '#0d111a',
+          colorBgElevated: '#151924',
+          colorBorder: '#1e2433',
+          colorText: '#e5e7eb',
+          colorTextSecondary: '#9ca3af',
+          borderRadius: 4,
+        },
+      }}
+    >
+      <div className="h-screen w-screen bg-[#0a0e17] flex flex-col overflow-hidden">
+        {/* Top Header Bar */}
+        <header className="h-12 bg-[#0d111a] border-b border-[#1e2433] flex items-center justify-between px-4 flex-shrink-0">
+          {/* Left - Logo & Menu */}
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">G</span>
+            </div>
+            <button className="text-gray-400 hover:text-white">
+              <MenuOutlined className="text-lg" />
+            </button>
+          </div>
+
+          {/* Center - Navigation */}
+          <nav className="flex items-center gap-6">
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                className={`text-sm font-medium transition-colors ${
+                  item.key === 'trade'
+                    ? 'text-white border-b-2 border-blue-500 pb-1'
+                    : 'text-gray-500 hover:text-white'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Right - Deposit & User */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsDepositModalOpen(true)}
+              className="px-4 py-1.5 bg-transparent border border-[#1e2433] text-gray-300 rounded text-sm hover:border-gray-500"
+            >
+              DEPOSIT/WITHDRAWAL
+            </button>
+            <button className="w-8 h-8 rounded-full bg-[#1e2433] flex items-center justify-center text-gray-400 hover:text-white">
+              <UserOutlined />
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content - Fixed Height, No Scroll */}
+        <main className="flex-1 flex overflow-hidden">
+          {/* Left Sidebar */}
+          <aside className="w-56 border-r border-[#1e2433] flex flex-col flex-shrink-0">
+            {/* Symbol Selector */}
+            <SymbolSelector />
+            
+            {/* Wallet/Balances */}
+            <WalletPanel />
+            
+            {/* Trading Panel */}
+            <TradingPanel />
+          </aside>
+
+          {/* Center Content */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Chart Area */}
+            <div className="flex-1 min-h-0">
+              <TradingChart />
+            </div>
+            
+            {/* Bottom - Order Book & Trades */}
+            <div className="h-[280px] flex border-t border-[#1e2433] flex-shrink-0">
+              <div className="flex-1 border-r border-[#1e2433]">
+                <OrderBook />
+              </div>
+              <div className="w-[320px]">
+                <RecentTrades />
+              </div>
+            </div>
+          </div>
+        </main>
+        
+        {/* Modals */}
+        <DepositModal />
+      </div>
+    </ConfigProvider>
   );
 }
 
 export default App;
+

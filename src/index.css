@@ -1,13 +1,241 @@
-body {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #0a0e17;
+  color: #e5e7eb;
+  overflow: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #151924;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2962ff;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1e4bd8;
+}
+
+/* Ant Design Dark Theme Overrides */
+.ant-select-selector,
+.ant-input,
+.ant-input-number,
+.ant-picker {
+  background-color: #151924 !important;
+  border-color: #1a1f2e !important;
+  color: #e5e7eb !important;
+}
+
+.ant-select-dropdown,
+.ant-picker-dropdown {
+  background-color: #151924 !important;
+}
+
+.ant-select-item {
+  color: #e5e7eb !important;
+}
+
+.ant-select-item-option-active,
+.ant-select-item-option-selected {
+  background-color: #1a1f2e !important;
+}
+
+.ant-tabs-tab {
+  color: #9ca3af !important;
+}
+
+.ant-tabs-tab-active {
+  color: #2962ff !important;
+}
+
+.ant-tabs-ink-bar {
+  background: #2962ff !important;
+}
+
+.ant-modal-content {
+  background-color: #151924 !important;
+}
+
+.ant-modal-header {
+  background-color: #151924 !important;
+  border-bottom-color: #1a1f2e !important;
+}
+
+.ant-modal-title {
+  color: #e5e7eb !important;
+}
+
+.ant-btn-primary {
+  background-color: #2962ff !important;
+  border-color: #2962ff !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #1e4bd8 !important;
+  border-color: #1e4bd8 !important;
+}
+
+/* Trading Platform Specific */
+.price-up {
+  color: #26a69a;
+}
+
+.price-down {
+  color: #ef5350;
+}
+
+.glass-effect {
+  background: rgba(21, 25, 36, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glow-border {
+  box-shadow: 0 0 15px rgba(41, 98, 255, 0.3);
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, #2962ff, #7c3aed);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.chart-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.chart-overlay > * {
+  pointer-events: auto;
+}
+
+/* Order Book */
+.order-row {
+  transition: background-color 0.15s ease;
+}
+
+.order-row:hover {
+  background-color: rgba(41, 98, 255, 0.1);
+}
+
+.bid-bar {
+  background: linear-gradient(90deg, transparent, rgba(38, 166, 154, 0.3));
+}
+
+.ask-bar {
+  background: linear-gradient(270deg, transparent, rgba(239, 83, 80, 0.3));
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+}
+
+/* Loading Spinner */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tooltip */
+.custom-tooltip {
+  background: rgba(21, 25, 36, 0.95) !important;
+  border: 1px solid #2962ff !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
 }
