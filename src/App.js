@@ -101,7 +101,7 @@ function App() {
         {/* Main Content - Fixed Height, No Scroll */}
         <main className="flex-1 flex overflow-hidden">
           {/* Left Sidebar */}
-          <aside className={`${sidebarOpen ? 'w-56' : 'w-0'} border-r border-[#1e2433] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden`}>
+          <aside className={`${sidebarOpen ? 'w-80' : 'w-0'} border-r border-[#1e2433] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden`}>
             {/* Symbol Selector */}
             <SymbolSelector />
             
