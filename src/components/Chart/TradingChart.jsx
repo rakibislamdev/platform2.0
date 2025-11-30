@@ -86,16 +86,29 @@ const TradingChart = () => {
           notMerge={true}
         />
         
-        {/* Real-time Price Label on Chart */}
+        {/* Real-time Price Label on Chart with horizontal line */}
         <div 
-          className={`absolute right-0 z-20 px-2 py-0.5 text-xs font-mono ${
-            currentPrice >= previousPrice 
-              ? 'bg-cyan-500 text-white' 
-              : 'bg-red-500 text-white'
-          }`}
-          style={{ top: '30%', transform: 'translateY(-50%)' }}
+          className="absolute right-0 z-20 flex items-center"
+          style={{ top: '30%', transform: 'translateY(-50%)', left: '0' }}
         >
-          {currentPrice?.toFixed(5)}
+          {/* Horizontal dashed line */}
+          <div 
+            className={`flex-1 border-t border-dashed ${
+              currentPrice >= previousPrice 
+                ? 'border-cyan-500' 
+                : 'border-red-500'
+            }`}
+          />
+          {/* Price label */}
+          <div 
+            className={`px-2 py-0.5 text-xs font-mono ${
+              currentPrice >= previousPrice 
+                ? 'bg-cyan-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            {currentPrice?.toFixed(5)}
+          </div>
         </div>
       </div>
       
