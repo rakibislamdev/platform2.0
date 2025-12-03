@@ -6,12 +6,14 @@ import {
   FullscreenOutlined,
   PlusOutlined,
   MinusOutlined,
+  AreaChartOutlined,
 } from '@ant-design/icons';
 import { BiCandles } from 'react-icons/bi';
+import { TbChartLine } from 'react-icons/tb';
 import useTradingStore from '../../store/tradingStore';
 
 const ChartToolbar = ({ onToggleIndicators }) => {
-  const { chartType, setChartType } = useTradingStore();
+  const { chartType, setChartType, activeIndicators } = useTradingStore();
 
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-[#0d111a] border-b border-[#1e2433]">
@@ -32,7 +34,7 @@ const ChartToolbar = ({ onToggleIndicators }) => {
         <button className="px-2 py-1 text-xs text-gray-500 hover:text-white">D</button>
       </div>
 
-      {/* Center - Chart Type Icons */}
+      {/* Center - Chart Type Icons & Indicators */}
       <div className="flex items-center gap-2">
         <Tooltip title="Line Chart">
           <button
@@ -44,6 +46,16 @@ const ChartToolbar = ({ onToggleIndicators }) => {
             <LineChartOutlined />
           </button>
         </Tooltip>
+        <Tooltip title="Area Chart">
+          <button
+            onClick={() => setChartType('area')}
+            className={`p-1.5 rounded ${
+              chartType === 'area' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            <AreaChartOutlined />
+          </button>
+        </Tooltip>
         <Tooltip title="Candlestick">
           <button
             onClick={() => setChartType('candlestick')}
@@ -52,6 +64,23 @@ const ChartToolbar = ({ onToggleIndicators }) => {
             }`}
           >
             <BiCandles />
+          </button>
+        </Tooltip>
+        
+        <div className="w-px h-4 bg-[#1e2433] mx-2" />
+        
+        {/* Indicators Button */}
+        <Tooltip title="Indicators">
+          <button
+            onClick={onToggleIndicators}
+            className={`p-1.5 rounded flex items-center gap-1 ${
+              activeIndicators?.length > 0 ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            <TbChartLine className="text-lg" />
+            {activeIndicators?.length > 0 && (
+              <span className="text-xs bg-cyan-500 px-1.5 rounded-full">{activeIndicators.length}</span>
+            )}
           </button>
         </Tooltip>
       </div>
