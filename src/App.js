@@ -7,6 +7,7 @@ import { TradingPanel } from './components/TradingPanel';
 import { OrderBook } from './components/OrderBook';
 import { RecentTrades } from './components/Trades';
 import { WalletPanel, WalletPage } from './components/Wallet';
+import { SettingsPage } from './components/Settings';
 import { DepositModal } from './components/Modals';
 import { MenuOutlined, UserOutlined } from '@ant-design/icons';
 import './App.css';
@@ -140,13 +141,7 @@ function App() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-6xl text-gray-600 mb-4">⚙️</div>
-                <h3 className="text-white text-lg mb-2">Settings</h3>
-                <p className="text-gray-500">Coming Soon - Account settings, preferences, and more</p>
-              </div>
-            </div>
+            <SettingsPage />
           )}
         </main>
         
