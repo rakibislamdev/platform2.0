@@ -1179,7 +1179,12 @@ class ChartService {
   }
 
   // Build all series
-  buildAllSeries(chartType, symbol, chartData, activeIndicators) {
+  buildAllSeries(chartType, symbol, chartData, activeIndicators, settings) {
+    // Update config if settings provided
+    if (settings) {
+      this.updateConfig(settings);
+    }
+    
     const series = [];
 
     // Main price series
@@ -1191,8 +1196,10 @@ class ChartService {
     );
     if (priceSeries) series.push(priceSeries);
 
-    // Volume series
-    series.push(this.buildVolumeSeries(chartData.volumes));
+    // Volume series (conditionally show based on settings)
+    if (this.config.showVolume !== false) {
+      series.push(this.buildVolumeSeries(chartData.volumes));
+    }
 
     // Indicator series
     const indicators = this.calculateIndicators(chartData);
@@ -1207,15 +1214,42 @@ class ChartService {
     return this.buildSubChartIndicators(activeIndicators, indicators, chartData);
   }
 
+  // Update config with external settings
+  updateConfig(settings) {
+    if (settings) {
+      this.config = {
+        ...this.config,
+        upColor: settings.upColor || this.config.upColor,
+        downColor: settings.downColor || this.config.downColor,
+        lineColor: settings.lineColor || this.config.lineColor,
+        backgroundColor: settings.backgroundColor || this.config.backgroundColor,
+        showGridLines: settings.showGridLines !== undefined ? settings.showGridLines : true,
+        showVolume: settings.showVolume !== undefined ? settings.showVolume : true,
+        crosshairStyle: settings.crosshairStyle || 'cross',
+      };
+    }
+    return this;
+  }
+
   // Get full chart options
-  getChartOptions(chartData, series) {
+  getChartOptions(chartData, series, settings) {
+    // Apply settings if provided
+    if (settings) {
+      this.updateConfig(settings);
+    }
+    
+    // Handle crosshair style - 'none' means no axis pointer
+    const crosshairType = this.config.crosshairStyle === 'none' ? 'none' : (this.config.crosshairStyle || 'cross');
+    const showAxisPointer = this.config.crosshairStyle !== 'none';
+    
     return {
       animation: false,
       backgroundColor: this.config.backgroundColor,
       tooltip: {
         trigger: 'axis',
+        show: showAxisPointer,
         axisPointer: {
-          type: 'cross',
+          type: crosshairType,
           crossStyle: {
             color: 'rgba(41, 98, 255, 0.5)',
           },
@@ -1285,7 +1319,10 @@ class ChartService {
             fontSize: 11,
             formatter: (value) => value.toFixed(5),
           },
-          splitLine: { lineStyle: { color: this.config.gridLineColor } },
+          splitLine: { 
+            show: this.config.showGridLines !== false,
+            lineStyle: { color: this.config.gridLineColor } 
+          },
         },
         {
           scale: true,

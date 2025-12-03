@@ -180,6 +180,20 @@ const useTradingStore = create((set, get) => ({
   activeDrawingTool: null,
   drawings: [],
   
+  // Chart Settings
+  chartSettings: {
+    showGridLines: true,
+    showVolume: true,
+    crosshairStyle: 'cross',
+    upColor: '#26a69a',
+    downColor: '#ef5350',
+    lineColor: '#2962ff',
+    backgroundColor: '#0a0e17',
+    priceScale: 'normal',
+    timeFormat: '24h',
+    timezone: 'UTC',
+  },
+  
   // UI State
   isMobileMenuOpen: false,
   activeTab: 'trade',
@@ -340,6 +354,28 @@ const useTradingStore = create((set, get) => ({
   },
   
   clearDrawings: () => set({ drawings: [] }),
+  
+  updateChartSettings: (newSettings) => {
+    const { chartSettings } = get();
+    set({ chartSettings: { ...chartSettings, ...newSettings } });
+  },
+  
+  resetChartSettings: () => {
+    set({
+      chartSettings: {
+        showGridLines: true,
+        showVolume: true,
+        crosshairStyle: 'cross',
+        upColor: '#26a69a',
+        downColor: '#ef5350',
+        lineColor: '#2962ff',
+        backgroundColor: '#0a0e17',
+        priceScale: 'normal',
+        timeFormat: '24h',
+        timezone: 'UTC',
+      },
+    });
+  },
   
   setIsMobileMenuOpen: (isOpen) => set({ isMobileMenuOpen: isOpen }),
   

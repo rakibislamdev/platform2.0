@@ -14,7 +14,7 @@ import { TbChartLine } from 'react-icons/tb';
 import useTradingStore from '../../store/tradingStore';
 import chartService from '../../services/chartService';
 
-const ChartToolbar = ({ onToggleIndicators, onToggleFullscreen, isFullscreen }) => {
+const ChartToolbar = ({ onToggleIndicators, onToggleSettings, showSettings, onToggleFullscreen, isFullscreen }) => {
   const { chartType, setChartType, activeIndicators } = useTradingStore();
 
   const handleZoomIn = () => {
@@ -120,7 +120,10 @@ const ChartToolbar = ({ onToggleIndicators, onToggleFullscreen, isFullscreen }) 
           </button>
         </Tooltip>
         <Tooltip title="Settings">
-          <button className="p-1 text-gray-500 hover:text-white">
+          <button 
+            onClick={onToggleSettings}
+            className={`p-1 ${showSettings ? 'text-blue-500' : 'text-gray-500 hover:text-white'}`}
+          >
             <SettingOutlined />
           </button>
         </Tooltip>

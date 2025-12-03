@@ -4,12 +4,14 @@ import useTradingStore from '../../store/tradingStore';
 import chartService from '../../services/chartService';
 import ChartToolbar from './ChartToolbar';
 import IndicatorPanel from './IndicatorPanel';
+import ChartSettings from './ChartSettings';
 import DrawingToolbar from './DrawingToolbar';
 
 const TradingChart = () => {
   const chartRef = useRef(null);
   const containerRef = useRef(null);
   const [showIndicatorPanel, setShowIndicatorPanel] = useState(false);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const {
@@ -19,6 +21,7 @@ const TradingChart = () => {
     currentPrice,
     previousPrice,
     activeIndicators,
+    chartSettings,
   } = useTradingStore();
 
   // Handle fullscreen toggle
@@ -60,13 +63,13 @@ const TradingChart = () => {
 
   // Build series using chart service
   const buildSeries = useMemo(() => {
-    return chartService.buildAllSeries(chartType, currentSymbol, chartData, activeIndicators);
-  }, [chartData, chartType, currentSymbol, activeIndicators]);
+    return chartService.buildAllSeries(chartType, currentSymbol, chartData, activeIndicators, chartSettings);
+  }, [chartData, chartType, currentSymbol, activeIndicators, chartSettings]);
 
   // Get chart options from service
   const options = useMemo(() => {
-    return chartService.getChartOptions(chartData, buildSeries);
-  }, [chartData, buildSeries]);
+    return chartService.getChartOptions(chartData, buildSeries, chartSettings);
+  }, [chartData, buildSeries, chartSettings]);
 
   // Handle chart resize
   useEffect(() => {
@@ -82,7 +85,9 @@ const TradingChart = () => {
     <div ref={containerRef} className="relative w-full h-full bg-[#0a0e17] overflow-hidden flex flex-col">
       {/* Chart Toolbar */}
       <ChartToolbar 
-        onToggleIndicators={() => setShowIndicatorPanel(!showIndicatorPanel)} 
+        onToggleIndicators={() => setShowIndicatorPanel(!showIndicatorPanel)}
+        onToggleSettings={() => setShowSettingsPanel(!showSettingsPanel)}
+        showSettings={showSettingsPanel}
         onToggleFullscreen={handleToggleFullscreen}
         isFullscreen={isFullscreen}
       />
@@ -93,6 +98,11 @@ const TradingChart = () => {
       {/* Indicator Panel */}
       {showIndicatorPanel && (
         <IndicatorPanel onClose={() => setShowIndicatorPanel(false)} />
+      )}
+      
+      {/* Settings Panel */}
+      {showSettingsPanel && (
+        <ChartSettings onClose={() => setShowSettingsPanel(false)} />
       )}
       
       {/* Price Info Bar */}
