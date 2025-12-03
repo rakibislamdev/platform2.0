@@ -8,7 +8,9 @@ import DrawingToolbar from './DrawingToolbar';
 
 const TradingChart = () => {
   const chartRef = useRef(null);
+  const containerRef = useRef(null);
   const [showIndicatorPanel, setShowIndicatorPanel] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const {
     candleData,
@@ -18,6 +20,28 @@ const TradingChart = () => {
     previousPrice,
     activeIndicators,
   } = useTradingStore();
+
+  // Handle fullscreen toggle
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      // Resize chart after fullscreen change
+      setTimeout(() => chartService.resize(), 100);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // Initialize chart service with ref
   useEffect(() => {
@@ -55,9 +79,13 @@ const TradingChart = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-full bg-[#0a0e17] overflow-hidden flex flex-col">
+    <div ref={containerRef} className="relative w-full h-full bg-[#0a0e17] overflow-hidden flex flex-col">
       {/* Chart Toolbar */}
-      <ChartToolbar onToggleIndicators={() => setShowIndicatorPanel(!showIndicatorPanel)} />
+      <ChartToolbar 
+        onToggleIndicators={() => setShowIndicatorPanel(!showIndicatorPanel)} 
+        onToggleFullscreen={handleToggleFullscreen}
+        isFullscreen={isFullscreen}
+      />
       
       {/* Drawing Toolbar - Left side */}
       <DrawingToolbar />

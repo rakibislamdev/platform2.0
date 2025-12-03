@@ -4,6 +4,7 @@ import {
   LineChartOutlined,
   SettingOutlined,
   FullscreenOutlined,
+  FullscreenExitOutlined,
   PlusOutlined,
   MinusOutlined,
   AreaChartOutlined,
@@ -13,7 +14,7 @@ import { TbChartLine } from 'react-icons/tb';
 import useTradingStore from '../../store/tradingStore';
 import chartService from '../../services/chartService';
 
-const ChartToolbar = ({ onToggleIndicators }) => {
+const ChartToolbar = ({ onToggleIndicators, onToggleFullscreen, isFullscreen }) => {
   const { chartType, setChartType, activeIndicators } = useTradingStore();
 
   const handleZoomIn = () => {
@@ -123,9 +124,9 @@ const ChartToolbar = ({ onToggleIndicators }) => {
             <SettingOutlined />
           </button>
         </Tooltip>
-        <Tooltip title="Fullscreen">
-          <button className="p-1 text-gray-500 hover:text-white">
-            <FullscreenOutlined />
+        <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+          <button onClick={onToggleFullscreen} className="p-1 text-gray-500 hover:text-white">
+            {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
           </button>
         </Tooltip>
       </div>
