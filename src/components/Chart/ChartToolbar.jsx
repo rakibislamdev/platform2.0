@@ -11,9 +11,30 @@ import {
 import { BiCandles } from 'react-icons/bi';
 import { TbChartLine } from 'react-icons/tb';
 import useTradingStore from '../../store/tradingStore';
+import chartService from '../../services/chartService';
 
 const ChartToolbar = ({ onToggleIndicators }) => {
   const { chartType, setChartType, activeIndicators } = useTradingStore();
+
+  const handleZoomIn = () => {
+    const currentZoom = chartService.getZoomRange();
+    const range = currentZoom.end - currentZoom.start;
+    const newRange = Math.max(range * 0.7, 5); // Zoom in by 30%, minimum 5% range
+    const center = (currentZoom.start + currentZoom.end) / 2;
+    const newStart = Math.max(0, center - newRange / 2);
+    const newEnd = Math.min(100, center + newRange / 2);
+    chartService.setZoomRange(newStart, newEnd);
+  };
+
+  const handleZoomOut = () => {
+    const currentZoom = chartService.getZoomRange();
+    const range = currentZoom.end - currentZoom.start;
+    const newRange = Math.min(range * 1.4, 100); // Zoom out by 40%, maximum 100% range
+    const center = (currentZoom.start + currentZoom.end) / 2;
+    const newStart = Math.max(0, center - newRange / 2);
+    const newEnd = Math.min(100, center + newRange / 2);
+    chartService.setZoomRange(newStart, newEnd);
+  };
 
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-[#0d111a] border-b border-[#1e2433]">
@@ -87,12 +108,16 @@ const ChartToolbar = ({ onToggleIndicators }) => {
 
       {/* Right - Tools */}
       <div className="flex items-center gap-2">
-        <button className="p-1 text-gray-500 hover:text-white">
-          <MinusOutlined className="text-xs" />
-        </button>
-        <button className="p-1 text-gray-500 hover:text-white">
-          <PlusOutlined className="text-xs" />
-        </button>
+        <Tooltip title="Zoom Out">
+          <button onClick={handleZoomOut} className="p-1 text-gray-500 hover:text-white">
+            <MinusOutlined className="text-xs" />
+          </button>
+        </Tooltip>
+        <Tooltip title="Zoom In">
+          <button onClick={handleZoomIn} className="p-1 text-gray-500 hover:text-white">
+            <PlusOutlined className="text-xs" />
+          </button>
+        </Tooltip>
         <Tooltip title="Settings">
           <button className="p-1 text-gray-500 hover:text-white">
             <SettingOutlined />
