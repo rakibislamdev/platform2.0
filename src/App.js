@@ -6,13 +6,13 @@ import { SymbolSelector } from './components/Symbol';
 import { TradingPanel } from './components/TradingPanel';
 import { OrderBook } from './components/OrderBook';
 import { RecentTrades } from './components/Trades';
-import { WalletPanel } from './components/Wallet';
+import { WalletPanel, WalletPage } from './components/Wallet';
 import { DepositModal } from './components/Modals';
 import { MenuOutlined, UserOutlined } from '@ant-design/icons';
 import './App.css';
 
 function App() {
-  const { updatePrice, addNewCandle, setIsDepositModalOpen } = useTradingStore();
+  const { updatePrice, addNewCandle, setIsDepositModalOpen, activeTab, setActiveTab } = useTradingStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Real-time price updates
@@ -73,8 +73,9 @@ function App() {
             {navItems.map((item) => (
               <button
                 key={item.key}
+                onClick={() => setActiveTab(item.key)}
                 className={`text-sm font-medium transition-colors ${
-                  item.key === 'trade'
+                  activeTab === item.key
                     ? 'text-white border-b-2 border-blue-500 pb-1'
                     : 'text-gray-500 hover:text-white'
                 }`}
@@ -100,35 +101,53 @@ function App() {
 
         {/* Main Content - Fixed Height, No Scroll */}
         <main className="flex-1 flex overflow-hidden">
-          {/* Left Sidebar */}
-          <aside className={`${sidebarOpen ? 'w-80' : 'w-0'} border-r border-[#1e2433] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden`}>
-            {/* Symbol Selector */}
-            <SymbolSelector />
-            
-            {/* Wallet/Balances */}
-            <WalletPanel />
-            
-            {/* Trading Panel */}
-            <TradingPanel />
-          </aside>
+          {activeTab === 'trade' && (
+            <>
+              {/* Left Sidebar */}
+              <aside className={`${sidebarOpen ? 'w-80' : 'w-0'} border-r border-[#1e2433] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden`}>
+                {/* Symbol Selector */}
+                <SymbolSelector />
+                
+                {/* Wallet/Balances */}
+                <WalletPanel />
+                
+                {/* Trading Panel */}
+                <TradingPanel />
+              </aside>
 
-          {/* Center Content */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Chart Area */}
-            <div className="flex-1 min-h-0">
-              <TradingChart />
-            </div>
-            
-            {/* Bottom - Order Book & Trades */}
-            <div className="h-[280px] flex border-t border-[#1e2433] flex-shrink-0">
-              <div className="flex-1 border-r border-[#1e2433]">
-                <OrderBook />
+              {/* Center Content */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Chart Area */}
+                <div className="flex-1 min-h-0">
+                  <TradingChart />
+                </div>
+                
+                {/* Bottom - Order Book & Trades */}
+                <div className="h-[280px] flex border-t border-[#1e2433] flex-shrink-0">
+                  <div className="flex-1 border-r border-[#1e2433]">
+                    <OrderBook />
+                  </div>
+                  <div className="w-[320px]">
+                    <RecentTrades />
+                  </div>
+                </div>
               </div>
-              <div className="w-[320px]">
-                <RecentTrades />
+            </>
+          )}
+
+          {activeTab === 'wallet' && (
+            <WalletPage />
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-6xl text-gray-600 mb-4">⚙️</div>
+                <h3 className="text-white text-lg mb-2">Settings</h3>
+                <p className="text-gray-500">Coming Soon - Account settings, preferences, and more</p>
               </div>
             </div>
-          </div>
+          )}
         </main>
         
         {/* Modals */}

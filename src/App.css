@@ -99,3 +99,33 @@
   }
 }
 
+/* Wallet Table Styles */
+.wallet-table .ant-table {
+  background: transparent !important;
+}
+
+.wallet-table .ant-table-thead > tr > th {
+  background: #0d111a !important;
+  border-bottom: 1px solid #1e2433 !important;
+  color: #9ca3af !important;
+  font-weight: 500;
+}
+
+.wallet-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #1e2433 !important;
+  background: transparent !important;
+}
+
+.wallet-table .ant-table-tbody > tr:hover > td {
+  background: #0d111a !important;
+}
+
+/* Wallet Page Tabs */
+.ant-tabs-nav::before {
+  border-bottom: 1px solid #1e2433 !important;
+}
+
+.ant-progress-inner {
+  background-color: #1e2433 !important;
+}
+
