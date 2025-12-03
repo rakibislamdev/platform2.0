@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Table, Tabs, Input, Button, Tag, Progress } from 'antd';
+import { Table, Tabs, Input, Button, Tag, Progress, Select } from 'antd';
+import ReactECharts from 'echarts-for-react';
 import { 
   SearchOutlined, 
   ArrowUpOutlined, 
@@ -9,7 +10,10 @@ import {
   EyeInvisibleOutlined,
   WalletOutlined,
   HistoryOutlined,
-  PieChartOutlined
+  PieChartOutlined,
+  LineChartOutlined,
+  RiseOutlined,
+  FallOutlined,
 } from '@ant-design/icons';
 import useTradingStore from '../../store/tradingStore';
 
@@ -367,11 +371,330 @@ const WalletPage = () => {
           )}
 
           {activeTab === 'analytics' && (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <PieChartOutlined className="text-6xl text-gray-600 mb-4" />
-                <h3 className="text-white text-lg mb-2">Portfolio Analytics</h3>
-                <p className="text-gray-500">Coming Soon - Detailed portfolio breakdown and performance metrics</p>
+            <div className="h-full overflow-auto">
+              {/* Analytics Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Portfolio Analytics</h3>
+                  <p className="text-sm text-gray-500">Detailed breakdown of your portfolio performance</p>
+                </div>
+                <Select
+                  defaultValue="30d"
+                  style={{ width: 150 }}
+                  options={[
+                    { value: '7d', label: 'Last 7 Days' },
+                    { value: '30d', label: 'Last 30 Days' },
+                    { value: '90d', label: 'Last 90 Days' },
+                    { value: '1y', label: 'Last Year' },
+                    { value: 'all', label: 'All Time' },
+                  ]}
+                />
+              </div>
+
+              {/* Stats Cards */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <div className="text-gray-500 text-xs mb-1">Total Portfolio Value</div>
+                  <div className="text-2xl font-bold text-white font-mono">
+                    ${showBalances ? totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '••••••'}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <RiseOutlined className="text-green-500 text-xs" />
+                    <span className="text-green-500 text-xs">+12.5%</span>
+                    <span className="text-gray-500 text-xs">vs last month</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <div className="text-gray-500 text-xs mb-1">Total Profit/Loss</div>
+                  <div className="text-2xl font-bold text-green-500 font-mono">
+                    {showBalances ? '+$2,456.78' : '••••••'}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <RiseOutlined className="text-green-500 text-xs" />
+                    <span className="text-green-500 text-xs">+8.3%</span>
+                    <span className="text-gray-500 text-xs">ROI</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <div className="text-gray-500 text-xs mb-1">Best Performer</div>
+                  <div className="text-2xl font-bold text-white">XAU</div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <RiseOutlined className="text-green-500 text-xs" />
+                    <span className="text-green-500 text-xs">+15.2%</span>
+                    <span className="text-gray-500 text-xs">this month</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <div className="text-gray-500 text-xs mb-1">Worst Performer</div>
+                  <div className="text-2xl font-bold text-white">XAG</div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <FallOutlined className="text-red-500 text-xs" />
+                    <span className="text-red-500 text-xs">-3.2%</span>
+                    <span className="text-gray-500 text-xs">this month</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Charts Row */}
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                {/* Portfolio Value Chart */}
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-white font-medium">Portfolio Value Over Time</h4>
+                    <LineChartOutlined className="text-gray-500" />
+                  </div>
+                  <ReactECharts
+                    option={{
+                      tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'rgba(21, 25, 36, 0.95)',
+                        borderColor: '#1e2433',
+                        textStyle: { color: '#e5e7eb' },
+                      },
+                      grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        top: '10%',
+                        containLabel: true,
+                      },
+                      xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: ['Nov 5', 'Nov 10', 'Nov 15', 'Nov 20', 'Nov 25', 'Nov 30', 'Dec 4'],
+                        axisLine: { lineStyle: { color: '#1e2433' } },
+                        axisLabel: { color: '#9ca3af' },
+                      },
+                      yAxis: {
+                        type: 'value',
+                        axisLine: { show: false },
+                        axisLabel: { color: '#9ca3af', formatter: (value) => '$' + value },
+                        splitLine: { lineStyle: { color: '#1e2433' } },
+                      },
+                      series: [{
+                        data: [25000, 26500, 25800, 28000, 27500, 29000, totalBalance],
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: { color: '#2962ff', width: 2 },
+                        areaStyle: {
+                          color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                              { offset: 0, color: 'rgba(41, 98, 255, 0.3)' },
+                              { offset: 1, color: 'rgba(41, 98, 255, 0.05)' },
+                            ],
+                          },
+                        },
+                        showSymbol: false,
+                      }],
+                    }}
+                    style={{ height: 250 }}
+                  />
+                </div>
+
+                {/* Asset Allocation Pie Chart */}
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-white font-medium">Asset Allocation</h4>
+                    <PieChartOutlined className="text-gray-500" />
+                  </div>
+                  <ReactECharts
+                    option={{
+                      tooltip: {
+                        trigger: 'item',
+                        backgroundColor: 'rgba(21, 25, 36, 0.95)',
+                        borderColor: '#1e2433',
+                        textStyle: { color: '#e5e7eb' },
+                        formatter: (params) => params.name + ': $' + params.value + ' (' + params.percent + '%)',
+                      },
+                      legend: {
+                        orient: 'vertical',
+                        right: '5%',
+                        top: 'center',
+                        textStyle: { color: '#9ca3af' },
+                      },
+                      series: [{
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        center: ['35%', '50%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                          borderRadius: 4,
+                          borderColor: '#0d111a',
+                          borderWidth: 2,
+                        },
+                        label: { show: false },
+                        emphasis: {
+                          label: { show: false },
+                        },
+                        data: portfolioData
+                          .filter(item => item.valueInUSD > 0)
+                          .sort((a, b) => b.valueInUSD - a.valueInUSD)
+                          .slice(0, 6)
+                          .map((item, index) => ({
+                            value: Math.round(item.valueInUSD * 100) / 100,
+                            name: item.code,
+                            itemStyle: {
+                              color: ['#2962ff', '#26a69a', '#f59e0b', '#ef5350', '#8b5cf6', '#ec4899'][index],
+                            },
+                          })),
+                      }],
+                    }}
+                    style={{ height: 250 }}
+                  />
+                </div>
+              </div>
+
+              {/* Performance Table */}
+              <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                <h4 className="text-white font-medium mb-4">Asset Performance</h4>
+                <div className="overflow-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-gray-500 text-xs border-b border-[#1e2433]">
+                        <th className="text-left py-3 px-2">Asset</th>
+                        <th className="text-right py-3 px-2">Holdings</th>
+                        <th className="text-right py-3 px-2">Value</th>
+                        <th className="text-right py-3 px-2">Allocation</th>
+                        <th className="text-right py-3 px-2">24h Change</th>
+                        <th className="text-right py-3 px-2">7d Change</th>
+                        <th className="text-right py-3 px-2">30d Change</th>
+                        <th className="text-right py-3 px-2">P&L</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {portfolioData
+                        .filter(item => item.valueInUSD > 0)
+                        .sort((a, b) => b.valueInUSD - a.valueInUSD)
+                        .map((item, index) => {
+                          const allocation = totalBalance > 0 ? (item.valueInUSD / totalBalance) * 100 : 0;
+                          const change7d = (Math.random() * 10 - 3).toFixed(2);
+                          const change30d = (Math.random() * 20 - 5).toFixed(2);
+                          const pnl = (item.valueInUSD * (Math.random() * 0.2 - 0.05)).toFixed(2);
+                          
+                          return (
+                            <tr key={item.code} className="border-b border-[#1e2433] hover:bg-[#151924]">
+                              <td className="py-3 px-2">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-full bg-[#1e2433] flex items-center justify-center text-sm">
+                                    {item.icon}
+                                  </div>
+                                  <div>
+                                    <div className="text-white font-medium text-sm">{item.code}</div>
+                                    <div className="text-xs text-gray-500">{item.name}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="text-right py-3 px-2 font-mono text-white text-sm">
+                                {showBalances ? item.balance.toLocaleString(undefined, { maximumFractionDigits: 4 }) : '••••'}
+                              </td>
+                              <td className="text-right py-3 px-2 font-mono text-white text-sm">
+                                {showBalances ? `$${item.valueInUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••'}
+                              </td>
+                              <td className="text-right py-3 px-2">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Progress 
+                                    percent={allocation} 
+                                    showInfo={false} 
+                                    strokeColor="#2962ff"
+                                    trailColor="#1e2433"
+                                    size="small"
+                                    style={{ width: 60 }}
+                                  />
+                                  <span className="text-gray-400 text-xs w-12 text-right">{allocation.toFixed(1)}%</span>
+                                </div>
+                              </td>
+                              <td className={`text-right py-3 px-2 font-mono text-sm ${item.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)}%
+                              </td>
+                              <td className={`text-right py-3 px-2 font-mono text-sm ${parseFloat(change7d) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {parseFloat(change7d) >= 0 ? '+' : ''}{change7d}%
+                              </td>
+                              <td className={`text-right py-3 px-2 font-mono text-sm ${parseFloat(change30d) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {parseFloat(change30d) >= 0 ? '+' : ''}{change30d}%
+                              </td>
+                              <td className={`text-right py-3 px-2 font-mono text-sm ${parseFloat(pnl) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {showBalances ? (parseFloat(pnl) >= 0 ? '+$' : '-$') + Math.abs(parseFloat(pnl)).toLocaleString() : '••••'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Monthly Summary */}
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <h4 className="text-white font-medium mb-3">Monthly Summary</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Total Deposits</span>
+                      <span className="text-green-500 font-mono text-sm">+$7,500.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Total Withdrawals</span>
+                      <span className="text-red-500 font-mono text-sm">-$2,100.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Trading P&L</span>
+                      <span className="text-green-500 font-mono text-sm">+$456.78</span>
+                    </div>
+                    <div className="flex justify-between border-t border-[#1e2433] pt-3">
+                      <span className="text-white text-sm font-medium">Net Change</span>
+                      <span className="text-green-500 font-mono text-sm font-medium">+$5,856.78</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <h4 className="text-white font-medium mb-3">Trading Stats</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Total Trades</span>
+                      <span className="text-white font-mono text-sm">127</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Win Rate</span>
+                      <span className="text-green-500 font-mono text-sm">64.5%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Avg Trade Size</span>
+                      <span className="text-white font-mono text-sm">$523.40</span>
+                    </div>
+                    <div className="flex justify-between border-t border-[#1e2433] pt-3">
+                      <span className="text-white text-sm font-medium">Best Trade</span>
+                      <span className="text-green-500 font-mono text-sm font-medium">+$1,245.00</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#0d111a] rounded-lg p-4 border border-[#1e2433]">
+                  <h4 className="text-white font-medium mb-3">Risk Metrics</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Sharpe Ratio</span>
+                      <span className="text-white font-mono text-sm">1.42</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Max Drawdown</span>
+                      <span className="text-red-500 font-mono text-sm">-8.3%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 text-sm">Volatility</span>
+                      <span className="text-yellow-500 font-mono text-sm">Medium</span>
+                    </div>
+                    <div className="flex justify-between border-t border-[#1e2433] pt-3">
+                      <span className="text-white text-sm font-medium">Risk Score</span>
+                      <span className="text-green-500 font-mono text-sm font-medium">7.2/10</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
