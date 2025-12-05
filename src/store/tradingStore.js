@@ -136,7 +136,7 @@ const useTradingStore = create((set, get) => ({
   
   // Chart settings
   chartType: 'candlestick',
-  timeframe: '1m',
+  timeframe: '1h',
   
   // Price data
   candleData: generateCandleData(initialPrices['EUR/USD']),
@@ -194,6 +194,14 @@ const useTradingStore = create((set, get) => ({
     timezone: 'UTC',
   },
   
+  // Chart Display Mode
+  chartDisplayMode: 'price', // 'price', 'depth'
+  showPriceLine: true, // P button
+  showDepthOverlay: false, // D button
+  showPercentScale: false, // % button
+  showLogScale: false, // log button
+  autoScale: true, // Auto button
+  
   // UI State
   isMobileMenuOpen: false,
   activeTab: 'trade',
@@ -222,6 +230,15 @@ const useTradingStore = create((set, get) => ({
   setChartType: (chartType) => set({ chartType }),
   
   setTimeframe: (timeframe) => set({ timeframe }),
+  
+  // Chart Display Mode Actions
+  setChartDisplayMode: (mode) => set({ chartDisplayMode: mode }),
+  togglePriceLine: () => set((state) => ({ showPriceLine: !state.showPriceLine })),
+  toggleDepthOverlay: () => set((state) => ({ showDepthOverlay: !state.showDepthOverlay })),
+  togglePercentScale: () => set((state) => ({ showPercentScale: !state.showPercentScale })),
+  toggleLogScale: () => set((state) => ({ showLogScale: !state.showLogScale })),
+  toggleAutoScale: () => set((state) => ({ autoScale: !state.autoScale })),
+  setAutoScale: (value) => set({ autoScale: value }),
   
   updatePrice: () => {
     const { currentPrice, currentSymbol, candleData } = get();

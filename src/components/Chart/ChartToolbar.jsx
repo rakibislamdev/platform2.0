@@ -15,7 +15,17 @@ import useTradingStore from '../../store/tradingStore';
 import chartService from '../../services/chartService';
 
 const ChartToolbar = ({ onToggleIndicators, onToggleSettings, showSettings, onToggleFullscreen, isFullscreen }) => {
-  const { chartType, setChartType, activeIndicators } = useTradingStore();
+  const { 
+    chartType, 
+    setChartType, 
+    activeIndicators,
+    chartDisplayMode,
+    setChartDisplayMode,
+    showPriceLine,
+    togglePriceLine,
+    showDepthOverlay,
+    toggleDepthOverlay,
+  } = useTradingStore();
 
   const handleZoomIn = () => {
     const currentZoom = chartService.getZoomRange();
@@ -42,18 +52,42 @@ const ChartToolbar = ({ onToggleIndicators, onToggleSettings, showSettings, onTo
       {/* Left - Chart Type Buttons */}
       <div className="flex items-center gap-1">
         <button
-          className={`px-3 py-1 text-xs rounded ${
-            chartType === 'candlestick' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'
+          onClick={() => setChartDisplayMode('price')}
+          className={`px-3 py-1 text-xs rounded transition-colors ${
+            chartDisplayMode === 'price' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white hover:bg-[#1e2433]'
           }`}
         >
           PRICE
         </button>
-        <button className="px-3 py-1 text-xs text-gray-500 hover:text-white rounded">
+        <button 
+          onClick={() => setChartDisplayMode('depth')}
+          className={`px-3 py-1 text-xs rounded transition-colors ${
+            chartDisplayMode === 'depth' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white hover:bg-[#1e2433]'
+          }`}
+        >
           DEPTH
         </button>
         <div className="w-px h-4 bg-[#1e2433] mx-2" />
-        <button className="px-2 py-1 text-xs text-gray-500 hover:text-white">P</button>
-        <button className="px-2 py-1 text-xs text-gray-500 hover:text-white">D</button>
+        <Tooltip title="Price Line Overlay">
+          <button 
+            onClick={togglePriceLine}
+            className={`px-2 py-1 text-xs rounded transition-colors ${
+              showPriceLine ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white hover:bg-[#1e2433]'
+            }`}
+          >
+            P
+          </button>
+        </Tooltip>
+        <Tooltip title="Depth Overlay">
+          <button 
+            onClick={toggleDepthOverlay}
+            className={`px-2 py-1 text-xs rounded transition-colors ${
+              showDepthOverlay ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white hover:bg-[#1e2433]'
+            }`}
+          >
+            D
+          </button>
+        </Tooltip>
       </div>
 
       {/* Center - Chart Type Icons & Indicators */}

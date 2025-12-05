@@ -4,7 +4,7 @@ import { CloseOutlined } from '@ant-design/icons';
 import useTradingStore from '../../store/tradingStore';
 
 const defaultSettings = {
-  showGridLines: true,
+  showGridLines: false,
   showVolume: true,
   crosshairStyle: 'cross',
   upColor: '#26a69a',
