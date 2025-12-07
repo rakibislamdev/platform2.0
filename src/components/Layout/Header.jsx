@@ -64,7 +64,7 @@ const Header = () => {
             <span className="text-white font-bold text-lg">AT</span>
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-white font-bold text-lg">AroTrader</h1>
+            <h1 className="text-white font-bold text-lg">PIPX</h1>
             <p className="text-gray-500 text-xs">Forex Trading Platform</p>
           </div>
         </div>

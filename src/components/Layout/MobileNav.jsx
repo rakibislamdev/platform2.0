@@ -40,7 +40,7 @@ const MobileNav = () => {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center">
                 <span className="text-white font-bold text-sm">AT</span>
               </div>
-              <span className="text-white font-bold">AroTrader</span>
+              <span className="text-white font-bold">PIPX</span>
             </div>
           </div>
         }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { message } from 'antd';
 import { 
   UserOutlined, 
@@ -9,7 +9,75 @@ import {
   LoadingOutlined,
 } from '@ant-design/icons';
 
+// Check if forex market is open (24/5 - Sunday 5PM EST to Friday 5PM EST)
+const getMarketStatus = () => {
+  const now = new Date();
+  
+  // Convert to EST/EDT
+  const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = estTime.getDay(); // 0 = Sunday, 6 = Saturday
+  const hour = estTime.getHours();
+  const minutes = estTime.getMinutes();
+  
+  // Check active sessions
+  const activeSessions = [];
+  
+  // Sydney session (crosses midnight) - 5PM - 2AM EST
+  if (hour >= 17 || hour < 2) activeSessions.push('Sydney');
+  // Tokyo session (crosses midnight) - 7PM - 4AM EST
+  if (hour >= 19 || hour < 4) activeSessions.push('Tokyo');
+  // London session - 3AM - 12PM EST
+  if (hour >= 3 && hour < 12) activeSessions.push('London');
+  // New York session - 8AM - 5PM EST
+  if (hour >= 8 && hour < 17) activeSessions.push('New York');
+  
+  // Market is closed on weekends
+  // Closed: Friday 5PM EST to Sunday 5PM EST
+  let isOpen = true;
+  let statusMessage = '';
+  
+  if (day === 6) {
+    // Saturday - always closed
+    isOpen = false;
+    statusMessage = 'Opens Sunday 5:00 PM EST';
+  } else if (day === 0 && hour < 17) {
+    // Sunday before 5PM - closed
+    isOpen = false;
+    const hoursUntilOpen = 17 - hour;
+    statusMessage = `Opens in ${hoursUntilOpen}h ${60 - minutes}m`;
+  } else if (day === 5 && hour >= 17) {
+    // Friday after 5PM - closed
+    isOpen = false;
+    statusMessage = 'Opens Sunday 5:00 PM EST';
+  } else {
+    isOpen = true;
+    statusMessage = activeSessions.length > 0 
+      ? `${activeSessions.join(' & ')} Session${activeSessions.length > 1 ? 's' : ''}`
+      : 'Market Open';
+  }
+  
+  return {
+    isOpen,
+    message: statusMessage,
+    activeSessions,
+    currentTime: estTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+    timezone: 'EST',
+  };
+};
+
 const LoginPage = ({ onLogin }) => {
+  // Market status state
+  const [marketStatus, setMarketStatus] = useState(getMarketStatus());
+
+  // Update market status every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMarketStatus(getMarketStatus());
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const [formData, setFormData] = useState({
     login: '',
     server: '',
@@ -155,15 +223,28 @@ const LoginPage = ({ onLogin }) => {
                   <line x1="18.5" y1="16" x2="18.5" y2="19" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold text-white mb-2">AroTrader</h1>
+              <h1 className="text-2xl font-bold text-white mb-2">PIPX</h1>
               <p className="text-gray-500 text-sm">Access Global Forex Markets</p>
               {/* Live Market Indicator */}
-              <div className="flex items-center justify-center gap-2 mt-3">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              <div className="flex flex-col items-center gap-1 mt-3">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    {marketStatus.isOpen ? (
+                      <>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </>
+                    ) : (
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    )}
+                  </span>
+                  <span className={`text-xs ${marketStatus.isOpen ? 'text-green-400' : 'text-red-400'}`}>
+                    {marketStatus.isOpen ? 'Markets Open' : 'Markets Closed'}
+                  </span>
+                </div>
+                <span className="text-[10px] text-gray-500">
+                  {marketStatus.message} • {marketStatus.currentTime} {marketStatus.timezone}
                 </span>
-                <span className="text-xs text-green-400">Markets Open</span>
               </div>
             </div>
 
