@@ -623,9 +623,24 @@ class ChartService {
   }
 
   // Format candle data for ECharts
-  formatCandleData(candleData) {
+  formatCandleData(candleData, rightPadding = 10) {
     if (!candleData || candleData.length === 0) {
-      return { dates: [], values: [], closeValues: [], volumes: [], ohlc: [], high: [], low: [], open: [] };
+      return { 
+        dates: [], 
+        values: [], 
+        closeValues: [], 
+        volumes: [], 
+        ohlc: [], 
+        high: [], 
+        low: [], 
+        open: [],
+        volume: [],
+        // Raw numeric arrays for indicator calculations (without padding)
+        rawClose: [],
+        rawHigh: [],
+        rawLow: [],
+        rawVolume: [],
+      };
     }
 
     const dates = candleData.map((d) => {
@@ -641,12 +656,19 @@ class ChartService {
     // OHLC data for candlestick [open, close, low, high]
     const values = candleData.map((d) => [d.open, d.close, d.low, d.high]);
 
-    // Individual arrays for indicator calculations
-    const open = candleData.map((d) => d.open);
-    const high = candleData.map((d) => d.high);
-    const low = candleData.map((d) => d.low);
-    const closeValues = candleData.map((d) => d.close);
-    const volume = candleData.map((d) => d.volume);
+    // Individual arrays for indicator calculations (raw numeric)
+    const rawOpen = candleData.map((d) => d.open);
+    const rawHigh = candleData.map((d) => d.high);
+    const rawLow = candleData.map((d) => d.low);
+    const rawClose = candleData.map((d) => d.close);
+    const rawVolume = candleData.map((d) => d.volume);
+
+    // Copy arrays for display (will have padding added)
+    const open = [...rawOpen];
+    const high = [...rawHigh];
+    const low = [...rawLow];
+    const closeValues = [...rawClose];
+    const volume = [...rawVolume];
 
     // Raw OHLC
     const ohlc = candleData.map((d) => ({
@@ -665,12 +687,57 @@ class ChartService {
       },
     }));
 
-    return { dates, values, closeValues, volumes, ohlc, high, low, open, volume };
+    // Add right padding (empty slots for gap on right side of chart)
+    const lastDate = candleData[candleData.length - 1];
+    const timeInterval = candleData.length > 1 
+      ? (candleData[candleData.length - 1].time - candleData[candleData.length - 2].time) * 1000
+      : 60000; // Default 1 minute
+    
+    for (let i = 1; i <= rightPadding; i++) {
+      const futureDate = new Date(lastDate.time * 1000 + timeInterval * i);
+      dates.push(futureDate.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }));
+      // Use empty array for candlestick (ECharts requires array format [open, close, low, high])
+      values.push(['-', '-', '-', '-']);
+      volumes.push({ value: '-', itemStyle: { color: 'transparent' } });
+      open.push('-');
+      high.push('-');
+      low.push('-');
+      closeValues.push('-');
+      volume.push('-');
+    }
+
+    return { 
+      dates, 
+      values, 
+      closeValues, 
+      volumes, 
+      ohlc, 
+      high, 
+      low, 
+      open, 
+      volume, 
+      rightPadding,
+      // Raw numeric arrays for indicator calculations (no padding)
+      rawClose,
+      rawHigh,
+      rawLow,
+      rawVolume,
+      rawOpen,
+    };
   }
 
   // Calculate all indicators
   calculateIndicators(chartData) {
-    const { closeValues, high, low, volume } = chartData;
+    // Use raw numeric arrays (without padding) for calculations
+    const closeValues = chartData.rawClose || chartData.closeValues;
+    const high = chartData.rawHigh || chartData.high;
+    const low = chartData.rawLow || chartData.low;
+    const volume = chartData.rawVolume || chartData.volume;
     
     if (!closeValues || closeValues.length === 0) {
       return {};
@@ -1186,6 +1253,7 @@ class ChartService {
     }
     
     const series = [];
+    const rightPadding = chartData.rightPadding || 0;
 
     // Main price series
     const priceSeries = this.buildPriceSeries(
@@ -1203,14 +1271,53 @@ class ChartService {
 
     // Indicator series
     const indicators = this.calculateIndicators(chartData);
+    
+    // Add padding to indicator data to match chart length
+    if (rightPadding > 0) {
+      this.padIndicatorData(indicators, rightPadding);
+    }
+    
     series.push(...this.buildIndicatorSeries(activeIndicators, indicators));
 
     return series;
+  }
+  
+  // Add padding to indicator data arrays
+  padIndicatorData(indicators, padding) {
+    const addPadding = (arr) => {
+      if (Array.isArray(arr)) {
+        for (let i = 0; i < padding; i++) {
+          arr.push('-');
+        }
+      }
+    };
+    
+    // Pad all indicator arrays
+    Object.keys(indicators).forEach(key => {
+      const value = indicators[key];
+      if (Array.isArray(value)) {
+        addPadding(value);
+      } else if (value && typeof value === 'object') {
+        // Handle nested objects like bollinger, ichimoku, etc.
+        Object.keys(value).forEach(subKey => {
+          if (Array.isArray(value[subKey])) {
+            addPadding(value[subKey]);
+          }
+        });
+      }
+    });
   }
 
   // Get sub-chart series for oscillators (RSI, MACD, etc.)
   getSubChartSeries(chartData, activeIndicators) {
     const indicators = this.calculateIndicators(chartData);
+    const rightPadding = chartData.rightPadding || 0;
+    
+    // Add padding to indicator data to match chart length
+    if (rightPadding > 0) {
+      this.padIndicatorData(indicators, rightPadding);
+    }
+    
     return this.buildSubChartIndicators(activeIndicators, indicators, chartData);
   }
 
